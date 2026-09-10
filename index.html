@@ -2,83 +2,194 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>P&G Social Media Live Wall</title>
+  <title>P&G Sales Floor Social Wall</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    :root {
+      --bg: #070d1e;
+      --card-bg: #0f1c3f;
+      --accent: #0084ff;
+      --tiktok: #ff0050;
+      --ig: #d62976;
+      --text: #ffffff;
+      --muted: #8ea1c1;
+      --border: #1d2f5e;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0b132b; color: #fff; overflow: hidden; height: 100vh; width: 100vw; display: flex; flex-direction: column; }
-    header { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; background: rgba(28, 37, 65, 0.95); border-bottom: 2px solid #3a506b; }
-    .brand-title { font-size: 1.8rem; font-weight: 800; display: flex; align-items: center; gap: 12px; }
-    .live-badge { background: #e02424; color: white; font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
-    .clock { font-size: 1.5rem; font-weight: 600; color: #a0aec0; }
-    main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 30px; }
-    .card { background: #1c2541; border: 1px solid #3a506b; border-radius: 24px; width: 90%; max-width: 1100px; height: 75vh; display: flex; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); overflow: hidden; transition: opacity 0.5s ease; }
-    .card.fade-out { opacity: 0; }
-    .media-container { flex: 1.1; background: #000; display: flex; align-items: center; justify-content: center; }
-    .media-container img { width: 100%; height: 100%; object-fit: cover; }
-    .content-container { flex: 1.2; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
-    .author-name { font-size: 1.5rem; font-weight: 700; }
-    .platform-tag { font-size: 0.9rem; color: #64dfdf; text-transform: uppercase; font-weight: 700; margin-top: 4px; }
-    .post-text { font-size: 1.6rem; line-height: 1.5; color: #fff; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; margin: 20px 0; }
-    .post-footer { font-size: 1rem; color: #a0aec0; border-top: 1px solid #3a506b; padding-top: 20px; display: flex; justify-content: space-between; }
+    body { background: var(--bg); color: var(--text); height: 100vh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; }
+
+    header {
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 28, 63, 0.85);
+      border-bottom: 2px solid var(--border);
+    }
+    .brand-logo { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
+    .live-dot { height: 12px; width: 12px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88; animation: pulse 1.5s infinite; }
+    .clock { font-size: 1.5rem; font-weight: 700; color: var(--muted); }
+
+    main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 25px 40px; }
+    .grid-container {
+      width: 100%;
+      max-width: 1500px;
+      height: 82vh;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 30px;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      opacity: 1;
+    }
+    .grid-container.fading { opacity: 0; transform: translateY(8px); }
+
+    .media-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .media-card img { width: 100%; height: 55%; object-fit: cover; }
+    .media-details { padding: 24px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .platform-badge { font-size: 0.85rem; font-weight: 800; padding: 5px 12px; border-radius: 8px; text-transform: uppercase; display: inline-block; width: fit-content; }
+    .platform-tiktok { background: var(--tiktok); color: white; }
+    .platform-instagram { background: var(--ig); color: white; }
+    .caption { font-size: 1.4rem; font-weight: 600; line-height: 1.4; margin: 12px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .stats-row { display: flex; gap: 24px; color: var(--muted); font-size: 1.1rem; font-weight: 700; border-top: 1px solid var(--border); padding-top: 14px; }
+
+    .comments-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .comments-title { font-size: 1.2rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+    
+    .comment-box {
+      background: #081126;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 15px;
+    }
+    .comment-user { font-weight: 700; font-size: 1.1rem; color: #64dfdf; display: flex; justify-content: space-between; }
+    .comment-text { font-size: 1.35rem; margin-top: 8px; line-height: 1.4; }
+    .comment-likes { color: #ff0050; font-size: 0.95rem; font-weight: 800; }
+
+    .footer-bar { font-size: 0.95rem; color: var(--muted); text-align: right; margin-top: 10px; }
+
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
   </style>
 </head>
 <body>
+
   <header>
-    <div class="brand-title"><span>🚀 P&G Social Live Wall</span><span class="live-badge">Live Updates</span></div>
+    <div class="brand-logo">
+      <div class="live-dot"></div>
+      <span>P&G Real-Time Brand Tracker</span>
+    </div>
     <div class="clock" id="clock">00:00:00</div>
   </header>
+
   <main>
-    <div class="card" id="card">
-      <div class="media-container"><img id="post-img" src="" alt="Brand Highlight"></div>
-      <div class="content-container">
-        <div>
-          <div class="author-name" id="author-name">@P&G</div>
-          <div class="platform-tag" id="platform-tag">Live Feed</div>
-          <div class="post-text" id="post-text">Loading posts...</div>
+    <div class="grid-container" id="display-grid">
+      <!-- Left: Post details -->
+      <div class="media-card">
+        <img id="post-img" src="" alt="Brand Campaign">
+        <div class="media-details">
+          <div>
+            <span id="platform-badge" class="platform-badge">TIKTOK</span>
+            <span style="margin-left: 10px; font-weight: 700; font-size: 1.2rem;" id="brand-handle">@brand</span>
+            <div class="caption" id="post-caption">Loading brand activity...</div>
+          </div>
+          <div class="stats-row">
+            <span>👀 <span id="view-count">--</span> Views</span>
+            <span>🔁 <span id="share-count">--</span> Shares</span>
+          </div>
         </div>
-        <div class="post-footer">
-          <span id="post-date">Just now</span>
-          <span id="post-counter">1 / 1</span>
+      </div>
+
+      <!-- Right: Upvoted Consumer Reactions -->
+      <div class="comments-card">
+        <div>
+          <div class="comments-title">💬 Top Consumer Reactions (Most Upvoted)</div>
+          <div id="comments-list"></div>
+        </div>
+        <div class="footer-bar">
+          <span id="brand-counter">1 of 20</span> • Auto-Refreshing Live
         </div>
       </div>
     </div>
   </main>
+
   <script>
-    let posts = [{ author: "@PG_Brands", platform: "Live Spotlight", text: "Connecting to social feeds for Tide, Dawn, Pampers, Gillette, Old Spice...", image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800", date: "Now" }];
+    let posts = [];
     let currentIndex = 0;
+    const ROTATION_INTERVAL = 8000; // 8 seconds per brand
 
-    function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
-    setInterval(updateClock, 1000); updateClock();
+    function updateClock() {
+      document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
-    async function fetchFeeds() {
+    async function loadFeeds() {
       try {
-        const res = await fetch('./feed.json?t=' + Date.now());
-        const data = await res.json();
-        if (data && data.length > 0) posts = data;
-      } catch (err) { console.warn('Loading fallback posts...'); }
+        const res = await fetch('./feed.json?nocache=' + Date.now());
+        posts = await res.json();
+      } catch (e) {
+        console.warn('Waiting for feed.json generation...');
+      }
     }
 
-    function displayCurrentPost() {
-      const card = document.getElementById('card');
+    function renderPost() {
+      if (!posts || posts.length === 0) return;
       const cur = posts[currentIndex];
-      card.classList.add('fade-out');
+      const grid = document.getElementById('display-grid');
+
+      grid.classList.add('fading');
+
       setTimeout(() => {
         document.getElementById('post-img').src = cur.image;
-        document.getElementById('author-name').textContent = cur.author;
-        document.getElementById('platform-tag').textContent = cur.platform;
-        document.getElementById('post-text').textContent = cur.text;
-        document.getElementById('post-date').textContent = cur.date;
-        document.getElementById('post-counter').textContent = `${currentIndex + 1} of ${posts.length}`;
-        card.classList.remove('fade-out');
+        document.getElementById('brand-handle').textContent = `${cur.brand} (${cur.handle})`;
+        document.getElementById('post-caption').textContent = cur.caption;
+        document.getElementById('view-count').textContent = cur.views;
+        document.getElementById('share-count').textContent = cur.shares;
+        
+        const badge = document.getElementById('platform-badge');
+        badge.textContent = cur.platform;
+        badge.className = `platform-badge platform-${cur.platform.toLowerCase()}`;
+
+        // Render top comments
+        const commentsContainer = document.getElementById('comments-list');
+        commentsContainer.innerHTML = cur.top_comments.map(c => `
+          <div class="comment-box">
+            <div class="comment-user">
+              <span>${c.user}</span>
+              <span class="comment-likes">❤️ ${c.likes} upvotes</span>
+            </div>
+            <div class="comment-text">"${c.text}"</div>
+          </div>
+        `).join('');
+
+        document.getElementById('brand-counter').textContent = `Brand ${currentIndex + 1} of ${posts.length}`;
+
+        grid.classList.remove('fading');
         currentIndex = (currentIndex + 1) % posts.length;
-      }, 500);
+      }, 400);
     }
 
-    fetchFeeds().then(() => {
-      displayCurrentPost();
-      setInterval(displayCurrentPost, 8000);
-      setInterval(fetchFeeds, 10 * 60 * 1000);
+    loadFeeds().then(() => {
+      renderPost();
+      setInterval(renderPost, ROTATION_INTERVAL);
+      setInterval(loadFeeds, 5 * 60 * 1000);
     });
   </script>
 </body>
