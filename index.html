@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>P&G Social Media Live Wall</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0b132b; color: #fff; overflow: hidden; height: 100vh; width: 100vw; display: flex; flex-direction: column; }
+    header { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; background: rgba(28, 37, 65, 0.95); border-bottom: 2px solid #3a506b; }
+    .brand-title { font-size: 1.8rem; font-weight: 800; display: flex; align-items: center; gap: 12px; }
+    .live-badge { background: #e02424; color: white; font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+    .clock { font-size: 1.5rem; font-weight: 600; color: #a0aec0; }
+    main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 30px; }
+    .card { background: #1c2541; border: 1px solid #3a506b; border-radius: 24px; width: 90%; max-width: 1100px; height: 75vh; display: flex; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); overflow: hidden; transition: opacity 0.5s ease; }
+    .card.fade-out { opacity: 0; }
+    .media-container { flex: 1.1; background: #000; display: flex; align-items: center; justify-content: center; }
+    .media-container img { width: 100%; height: 100%; object-fit: cover; }
+    .content-container { flex: 1.2; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
+    .author-name { font-size: 1.5rem; font-weight: 700; }
+    .platform-tag { font-size: 0.9rem; color: #64dfdf; text-transform: uppercase; font-weight: 700; margin-top: 4px; }
+    .post-text { font-size: 1.6rem; line-height: 1.5; color: #fff; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; margin: 20px 0; }
+    .post-footer { font-size: 1rem; color: #a0aec0; border-top: 1px solid #3a506b; padding-top: 20px; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-title"><span>🚀 P&G Social Live Wall</span><span class="live-badge">Live Updates</span></div>
+    <div class="clock" id="clock">00:00:00</div>
+  </header>
+  <main>
+    <div class="card" id="card">
+      <div class="media-container"><img id="post-img" src="" alt="Brand Highlight"></div>
+      <div class="content-container">
+        <div>
+          <div class="author-name" id="author-name">@P&G</div>
+          <div class="platform-tag" id="platform-tag">Live Feed</div>
+          <div class="post-text" id="post-text">Loading posts...</div>
+        </div>
+        <div class="post-footer">
+          <span id="post-date">Just now</span>
+          <span id="post-counter">1 / 1</span>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    let posts = [{ author: "@PG_Brands", platform: "Live Spotlight", text: "Connecting to social feeds for Tide, Dawn, Pampers, Gillette, Old Spice...", image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800", date: "Now" }];
+    let currentIndex = 0;
+
+    function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
+    setInterval(updateClock, 1000); updateClock();
+
+    async function fetchFeeds() {
+      try {
+        const res = await fetch('./feed.json?t=' + Date.now());
+        const data = await res.json();
+        if (data && data.length > 0) posts = data;
+      } catch (err) { console.warn('Loading fallback posts...'); }
+    }
+
+    function displayCurrentPost() {
+      const card = document.getElementById('card');
+      const cur = posts[currentIndex];
+      card.classList.add('fade-out');
+      setTimeout(() => {
+        document.getElementById('post-img').src = cur.image;
+        document.getElementById('author-name').textContent = cur.author;
+        document.getElementById('platform-tag').textContent = cur.platform;
+        document.getElementById('post-text').textContent = cur.text;
+        document.getElementById('post-date').textContent = cur.date;
+        document.getElementById('post-counter').textContent = `${currentIndex + 1} of ${posts.length}`;
+        card.classList.remove('fade-out');
+        currentIndex = (currentIndex + 1) % posts.length;
+      }, 500);
+    }
+
+    fetchFeeds().then(() => {
+      displayCurrentPost();
+      setInterval(displayCurrentPost, 8000);
+      setInterval(fetchFeeds, 10 * 60 * 1000);
+    });
+  </script>
+</body>
+</html>
