@@ -1,0 +1,31 @@
+name: Live Brand Sync
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Fetch Feeds
+        run: python fetch_feeds.py
+
+      - name: Commit Updated Feeds
+        run: |
+          git config --global user.name "ScreenBot"
+          git config --global user.email "bot@github.com"
+          git add feed.json
+          git commit -m "Auto-refresh social feeds [skip ci]" || exit 0
+          git push
