@@ -1,0 +1,31 @@
+name: Refresh P&G Feeds
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Runs automatically every 30 minutes
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run Feed Collector
+        run: python fetch_feeds.py
+
+      - name: Commit & Push Updated Feed
+        run: |
+          git config --global user.name "TV-Bot"
+          git config --global user.email "bot@github.com"
+          git add feed.json
+          git commit -m "Auto-update feed data [skip ci]" || exit 0
+          git push
